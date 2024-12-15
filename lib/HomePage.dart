@@ -34,7 +34,7 @@ class _HomePage extends State<HomePage> {
           if (state is WeatherLoadedState) {
             cityName = state.data['cityName'];
             temperature = state.data['temp'].toString();
-            context.read<MyBloc>().add(UpdateWeatherDataEvent (city: cityName!,temperature: temperature!));
+            context.read<MyBloc>().add(UpdateWeatherDataEvent (city: cityName!,temperature: temperature!));//storing data in hive
             // Update the UI if new data is loaded
             setState(() {});
           } else if (state is WeatherErrorState) {
@@ -70,7 +70,7 @@ class _HomePage extends State<HomePage> {
           await Navigator.of(context).push(
             MaterialPageRoute(
               builder: (context) => WebViewApp(
-                CITY: cityName ?? "Unknown",
+                CITY: cityName ?? "Unknown",    //passing city and temp to webview page is its null then passing unknown and N/A
                 TEMP: temperature ?? "N/A",
               ),
             ),

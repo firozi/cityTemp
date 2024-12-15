@@ -43,7 +43,7 @@ class MyBloc extends Bloc<MyEvent, MyState> {
         repository.saveDataToLocalStorage('city', event.city);
         repository.saveDataToLocalStorage('temp', event.temperature);
       } catch (e) {
-        emit(WeatherErrorState('Failed to update and persist data'));
+        emit(WeatherErrorState('Failed to update'));
       }
     });
   }
