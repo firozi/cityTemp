@@ -39,9 +39,7 @@ class _HomePage extends State<HomePage> {
             setState(() {});
           } else if (state is WeatherErrorState) {
             // Show an error message if loading fails
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.error)),
-            );
+            print("error ");
           }
         },
         builder: (context, state) {
