@@ -29,6 +29,11 @@ class _WebViewAppState extends State<WebViewApp> {
     super.initState();
     controller = WebViewController()//Initialing the WebViewController, which is responsible for controlling and managing the WebView widget
       ..setJavaScriptMode(JavaScriptMode.unrestricted) //allowing javascript code to run without any restriction
+    ..setNavigationDelegate(NavigationDelegate(
+      onPageFinished: (_){
+        controller.runJavaScript('updateCityData("${widget.CITY}", "${widget.TEMP}")'); //getting city and temp from home page and as soon as page finished loading call the javascript method and pass tha city and temp
+      }
+    ))
       ..addJavaScriptChannel("Flutter", onMessageReceived: (message) { //adding channel to communicate to javascript
         if (message.message == 'fetchRandomCity') {   //onclick on get random city data we sending a message fetchrandomcity which is equal to this message so we can execute the GetRandomCityData event
           print("fetched random city");
@@ -38,6 +43,7 @@ class _WebViewAppState extends State<WebViewApp> {
           Navigator.of(context).pop();
         }
       })
+
       ..loadRequest(
         Uri.parse('https://firozi.github.io/webView/')); //This loads the web content into the WebView from the URL
 
@@ -45,18 +51,10 @@ class _WebViewAppState extends State<WebViewApp> {
 
   @override
   Widget build(BuildContext context) {
-    WidgetsBinding.instance.addPostFrameCallback((_){
-      //this method will be called after the build method is called and with future delayed im delaying by 3 sec so that webpage is loaded until then ,so we can call the javascript method to update the ui with city and temp which we are getting from the home screen
-      //there is onPageFinished method in webViewWidget se could have done this there but idk there was some problem so im doing this
-
-      Future.delayed(Duration(seconds: 3),(){
-        controller.runJavaScript('updateCityData("${widget.CITY}", "${widget.TEMP}")');});
-
-    });
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title: const Text('Flutter WebView wait 3 sec..'),
+        title: const Text('Flutter WebView'),
       ),
       body: BlocConsumer<MyBloc, MyState>(
         listener: (context, state) {
