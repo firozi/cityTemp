@@ -1,8 +1,9 @@
 import 'dart:convert';
 import 'dart:math';
+import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
 class Repository {
-
+  final _mybox=Hive.box('Mybox');
   Future<Map<String,dynamic>?> fetchDataFromApi() async {   //function to fetch city name and temp
     List<String> Cities = ["New Delhi", "Mumbai", "Bangalore", "Kolkata", "Chennai", "Hyderabad", "Ahmedabad","Pune", "Jaipur", "Surat", "Lucknow", "Kanpur", "Nagpur", "Indore", "Patna", "Vadodara","Ghaziabad", "Ludhiana", "Agra", "Chandigarh", "Coimbatore", "Nashik", "Bhopal", "Ranchi", "Vijayawada", "Visakhapatnam", "Mysuru", "Madurai", "Shimla", "Trivandrum"
     ];
@@ -26,4 +27,13 @@ class Repository {
       throw Exception('Failed to load data');
     }
   }
+
+  dynamic loadDataFromLocalStorage(String key) {
+    return _mybox.get(key);
+  }
+  void saveDataToLocalStorage(String key, dynamic value) {
+    _mybox.put(key, value);
+  }
+
+
 }

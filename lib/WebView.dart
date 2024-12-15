@@ -63,8 +63,6 @@ class _WebViewAppState extends State<WebViewApp> {
             // Pass data to WebView when data is fetched
              city = state.data['cityName'];
              temp = state.data['temp'];
-            _mybox.put('city', city);//storing data in hive
-            _mybox.put('temp', temp);
 
             controller.runJavaScript('updateCityData("$city", "$temp")');
           } else if (state is WeatherErrorState) {

@@ -1,75 +1,85 @@
-
 import 'package:flutter/material.dart';
-import 'package:hive_flutter/adapters.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:weather/WebView.dart';
+import 'package:weather/bloc/Bloc.dart';
+import 'package:weather/bloc/event.dart';
+import 'package:weather/bloc/state.dart';
 
-//This is our home page
 class HomePage extends StatefulWidget {
   @override
   _HomePage createState() => _HomePage();
 }
 
 class _HomePage extends State<HomePage> {
-  final _mybox=Hive.box('Mybox');
-
-  String ?cityName;
-  String ?temperature;
+  final _mybox = Hive.box('Mybox');
+  String? cityName;
+  String? temperature;
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    if (_mybox.containsKey('city') && _mybox.containsKey('temp')) {
-      // Retrieve the data if it exists
-      cityName = _mybox.get('city');
-      temperature = _mybox.get('temp');
-      setState(() {
-
-      });
-      print("City: $cityName, Temperature: $temperature");
-    } else {
-      // If data doesn't exist, you can handle it here
-      print("No city or temperature data found in Hive.");
-    }
+    // Trigger the LoadLocalData event on Bloc
+    context.read<MyBloc>().add(loadLocalData());
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Home Page'),
+        title: const Text('Home Page'),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              'City: ${cityName?? "Unknown"}',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+      body: BlocConsumer<MyBloc, MyState>(
+        listener: (context, state) {
+          if (state is WeatherLoadedState) {
+            cityName = state.data['cityName'];
+            temperature = state.data['temp'].toString();
+            context.read<MyBloc>().add(UpdateWeatherDataEvent (city: cityName!,temperature: temperature!));
+            // Update the UI if new data is loaded
+            setState(() {});
+          } else if (state is WeatherErrorState) {
+            // Show an error message if loading fails
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(state.error)),
+            );
+          }
+        },
+        builder: (context, state) {
+          if (state is WeatherLoadingState) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  'City: ${cityName ?? "Unknown"}',
+                  style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  'Temperature: ${temperature ?? "N/A"}',
+                  style: const TextStyle(fontSize: 20),
+                ),
+              ],
             ),
-            SizedBox(height: 10),
-            Text(
-              'Temperature: ${temperature?? "N/A"}',
-              style: TextStyle(fontSize: 20),
-            ),
-          ],
-        ),
+          );
+        },
       ),
       floatingActionButton: FloatingActionButton(
-        //as we click on the floating action button we will navigate to WebView page
-      onPressed: ()async{
-    await Navigator.of(context).push(MaterialPageRoute(builder: (context)=>WebViewApp(CITY: cityName??"Unknown",TEMP: temperature??"N/A",)));
-    //we will wait on this line until user pop from the webView page
-      setState(() {
-        cityName=_mybox.get('city');
-        temperature=_mybox.get('temp').toString();
-      });
-      return;
+        onPressed: () async {
+          // Navigate to WebViewApp and wait for the result
+          await Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => WebViewApp(
+                CITY: cityName ?? "Unknown",
+                TEMP: temperature ?? "N/A",
+              ),
+            ),
+          );
 
-
-
-      },
-        child: Icon(Icons.web_outlined),
+        },
+        child: const Icon(Icons.web_outlined),
         tooltip: 'Update Weather',
       ),
     );
