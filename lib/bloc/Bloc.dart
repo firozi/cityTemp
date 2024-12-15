@@ -6,11 +6,11 @@ import 'package:weather/bloc/state.dart';
 import 'event.dart';
 
 class MyBloc extends Bloc<MyEvent, MyState> {
+
   final Repository repository;// creating repo instance
 
-  MyBloc(this.repository) : super(WeatherInitialState()) {   //setting initailstate
-    // Registering the event handler for GetRandomCityData
-    on<GetRandomCityData>((event, emit) async {
+  MyBloc(this.repository) : super(WeatherInitialState()) {   //setting initailal
+    on<GetRandomCityData>((event, emit) async {   // Registering the event handler for GetRandomCityData
       emit(WeatherLoadingState());    // setting loading state
       try {
         final data = await repository.fetchDataFromApi();

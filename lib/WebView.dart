@@ -42,11 +42,11 @@ class _WebViewAppState extends State<WebViewApp> {
         Uri.parse('https://firozi.github.io/webView/')); //This loads the web content into the WebView from the URL
 
   }
-bool waiting=false;
+
   @override
   Widget build(BuildContext context) {
     WidgetsBinding.instance.addPostFrameCallback((_){
-      //this method will be called after the build method is called and with future delayed im delaying by 3 sec so that webpage is loaded until then ,so we can call the javascript method to update the ui with city and temp from the home screen
+      //this method will be called after the build method is called and with future delayed im delaying by 3 sec so that webpage is loaded until then ,so we can call the javascript method to update the ui with city and temp which we are getting from the home screen
       //there is onPageFinished method in webViewWidget se could have done this there but idk there was some problem so im doing this
 
       Future.delayed(Duration(seconds: 3),(){
