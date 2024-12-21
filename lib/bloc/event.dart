@@ -10,6 +10,4 @@ final String temperature;
 
  UpdateWeatherDataEvent({required this.city, required this.temperature});
 
-@override
-List<Object?> get props => [city, temperature];
 }

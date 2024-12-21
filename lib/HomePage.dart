@@ -32,31 +32,49 @@ class _HomePage extends State<HomePage> {
       body: BlocConsumer<MyBloc, MyState>(
         listener: (context, state) {
           if (state is WeatherLoadedState) {
-            cityName = state.data['cityName'];
-            temperature = state.data['temp'].toString();
-            context.read<MyBloc>().add(UpdateWeatherDataEvent (city: cityName!,temperature: temperature!));//storing data in hive
-            // Update the UI if new data is loaded
-            setState(() {});
+            // Side effect: Save data to Hive
+            context.read<MyBloc>().add(UpdateWeatherDataEvent(
+              city: state.data['cityName']!,
+              temperature: state.data['temp']!.toString(),
+            ));
           } else if (state is WeatherErrorState) {
-            // Show an error message if loading fails
-            print("error ");
+            print("Error loading weather data");
           }
         },
         builder: (context, state) {
           if (state is WeatherLoadingState) {
             return const Center(child: CircularProgressIndicator());
+          } else if (state is WeatherLoadedState) {
+            cityName=state.data['cityName'];
+            temperature=state.data['temp'];
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'City: ${state.data['cityName'] ?? "Unknown"}',
+                    style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    'Temperature: ${state.data['temp']?.toString() ?? "N/A"}',
+                    style: const TextStyle(fontSize: 20),
+                  ),
+                ],
+              ),
+            );
           }
-          return Center(
+          return const Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  'City: ${cityName ?? "Unknown"}',
+                  'City: Unknown',
                   style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 10),
                 Text(
-                  'Temperature: ${temperature ?? "N/A"}',
+                  'Temperature: N/A',
                   style: const TextStyle(fontSize: 20),
                 ),
               ],
@@ -64,22 +82,35 @@ class _HomePage extends State<HomePage> {
           );
         },
       ),
+
       floatingActionButton: FloatingActionButton(
-        onPressed: ()  {
-          // Navigate to WebViewApp and wait for the result
-           Navigator.of(context).push(
+        onPressed: () {
+          // Access the current Bloc state
+          final currentState = context.read<MyBloc>().state;
+
+          // Determine city and temperature based on the current state
+          final city = (currentState is WeatherLoadedState)
+              ? currentState.data['cityName'] ?? "Unknown"
+              : "Unknown";
+
+          final temp = (currentState is WeatherLoadedState)
+              ? currentState.data['temp']?.toString() ?? "N/A"
+              : "N/A";
+
+          // Navigate to WebViewApp with appropriate data
+          Navigator.of(context).push(
             MaterialPageRoute(
               builder: (context) => WebViewApp(
-                CITY: cityName ?? "Unknown",    //passing city and temp to webview page is its null then passing unknown and N/A
-                TEMP: temperature ?? "N/A",
+                CITY: city,
+                TEMP: temp,
               ),
             ),
           );
-
         },
         child: const Icon(Icons.web_outlined),
         tooltip: 'Update Weather',
       ),
+
     );
   }
 }
