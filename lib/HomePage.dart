@@ -13,8 +13,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePage extends State<HomePage> {
   final _mybox = Hive.box('Mybox');
-  String? cityName;
-  String? temperature;
+
 
   @override
   void initState() {
@@ -45,8 +44,6 @@ class _HomePage extends State<HomePage> {
           if (state is WeatherLoadingState) {
             return const Center(child: CircularProgressIndicator());
           } else if (state is WeatherLoadedState) {
-            cityName=state.data['cityName'];
-            temperature=state.data['temp'];
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
